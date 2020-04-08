@@ -22,13 +22,7 @@ var margin = {
 var chartHeight = svgHeight - margin.top - margin.bottom;
 var chartWidth = svgWidth - margin.left - margin.right;
 
-var xScale = d3.scaleLinear()
-    .domain([0,40])
-    .range([0, chartWidth]);
 
-var yScale = d3.scaleLinear()
-    .domain([0, 20])    
-    .range([chartHeight, 0]);
 
 //create svg container 
 var chart = d3.select('#scatter').append('svg')
@@ -43,10 +37,7 @@ var chartGroup = chart.append('g')
     .attr('height', chartHeight)
     .attr('class', 'chartGroup');
 
-//Create axis
-var xAxis = d3.axisBottom(xScale);
 
-var yAxis = d3.axisLeft(yScale);
 
 // Load data from csv
 d3.csv("./data.csv").then(function(demoData) {
@@ -55,34 +46,22 @@ d3.csv("./data.csv").then(function(demoData) {
     demoData.forEach(function (d) {
         stateData.push(d);
         d.poverty = +d.poverty;
-        d.smokes = +d.smokes;
-        d.obesity = +d.obesity;
-        d.age = +d.age;
-        d.income = +d.income;
-        d.healthcare = +d.healthcare;
-        var xValue = d.poverty;
-        var yValue = d.obesity;
-
-    console.log(xValue);
-    console.log(yValue); 
-// Log state names
-    var statedata = demoData.map(data => data.state);
-    statedata.push(states);
-    console.log("state", statedata);
-
-    var abbreviationsdata = demoData.map(data => data.abbr);
-    abbreviationsdata.push(abbreviations);
-    console.log("abbreviations", abbreviationsdata);
+        d.obesity = +d.obesity;     
 
 
-    var povertydata = demoData.map(data =>+data.poverty);
-    povertydata.push(poverty);
-    console.log("poverty", povertydata);
+    
+var xScale = d3.scaleLinear()
+    .domain([0,d3.max(stateData, d => d.obesity)])
+    .range([0, chartWidth]);
 
-    var obesitydata = demoData.map(data => +data.obesity);
-    obesitydata.push(obesity);
-    console.log("obesity", obesitydata);
+var yScale = d3.scaleLinear()
+    .domain([0, d3.max(stateData, d => d.obesity)])    
+    .range([chartHeight, 0]);
 
+  //Create axis
+var xAxis = d3.axisBottom(xScale);
+
+var yAxis = d3.axisLeft(yScale);  
 
 chartGroup.append('g')
     .attr('transform', `translate(0, ${chartHeight})`)
@@ -104,8 +83,8 @@ g
     .attr('r', 15)
     .attr('fill', "blue")
     .style('opacity', '0.3');
-//Add state abbreivations to circles
 
+//Add state abbreivations to circles
 var circleLabel = chartGroup.selectAll().data(stateData).enter().append('text');
 
 circleLabel.attr("x", function(d) {
@@ -136,7 +115,7 @@ chartGroup.append("text")
   .attr("x", 0 - (chartHeight / 2))
   .attr("dy", "1em")
   .attr("class", "axisText")
-  .text("Poverty (%)");
+  .text("In Poverty (%)");
 
 chartGroup.append("text")
   .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top})`)
